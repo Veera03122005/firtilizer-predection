@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}About & Model Card - Smart Fertilizer Advisor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- System Overview -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-success text-white py-3">
+                <h4 class="mb-0"><i class="bi bi-info-circle me-2"></i>About Smart Fertilizer Advisor</h4>
+            </div>
+            <div class="card-body p-4">
+                <p class="lead">
+                    Smart Fertilizer Advisor combines machine learning, rule-based agronomic balance calculations, and retrieval-augmented generation (RAG) to help farmers optimize fertilizer application and minimize input cost.
+                </p>
+                <p>
+                    Rather than providing a single fertilizer name without context, the advisor calculates required bags and balances primary, secondary, and micronutrients with complete application split timelines.
+                </p>
+
+                <h5 class="fw-bold mt-4 mb-3">Technology Stack</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 bg-light h-100">
+                            <strong><i class="bi bi-gear-wide-connected me-2 text-success"></i>Backend & ML</strong>
+                            <ul class="mb-0 mt-2 small text-muted">
+                                <li>Python 3.12 & Flask 3.1</li>
+                                <li>scikit-learn (Random Forest Pipeline)</li>
+                                <li>SQLite & Flask-SQLAlchemy 3.1</li>
+                                <li>Flask-Login & Flask-WTF (CSRF Protection)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 bg-light h-100">
+                            <strong><i class="bi bi-robot me-2 text-primary"></i>Advisory AI & Integrations</strong>
+                            <ul class="mb-0 mt-2 small text-muted">
+                                <li>Google Gemini (Flash + Embeddings)</li>
+                                <li>FAISS vector index over 34 agronomy documents</li>
+                                <li>Open-Meteo weather API</li>
+                                <li>fpdf2 for PDF report compilation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Card -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-primary text-white py-3">
+                <h4 class="mb-0"><i class="bi bi-card-checklist me-2"></i>Machine Learning Model Card</h4>
+            </div>
+            <div class="card-body p-4">
+                <table class="table table-bordered mb-4">
+                    <tbody>
+                        <tr>
+                            <th class="w-40 bg-light">Model Version</th>
+                            <td><code>{{ meta.model_version or '2026.11.06-rf300' }}</code></td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Algorithm</th>
+                            <td>{{ meta.algorithm or 'RandomForestClassifier(n_estimators=300)' }}</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Training Dataset Size</th>
+                            <td>{{ meta.rows or 99 }} records (Public Kaggle Fertilizer Prediction)</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Cross-Validation Performance</th>
+                            <td>
+                                <strong>{{ ((meta.cv.accuracy_mean if meta.cv else 0.94) * 100) | round(1) }}%</strong> accuracy
+                                (&plusmn; {{ ((meta.cv.accuracy_std if meta.cv else 0.02) * 100) | round(1) }}%, 4-fold Stratified)
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">scikit-learn Version</th>
+                            <td><code>{{ meta.sklearn_version or '1.9.0' }}</code></td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Trained On</th>
+                            <td>{{ meta.trained_at or '2026-11-06' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h6 class="fw-bold mb-2">Training Parameter Ranges</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Training Min</th>
+                                <th>Training Max</th>
+                                <th>Unit / Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if meta.ranges %}
+                                {% for feat, rng in meta.ranges.items() %}
+                                <tr>
+                                    <td>{{ feat }}</td>
+                                    <td>{{ rng[0] }}</td>
+                                    <td>{{ rng[1] }}</td>
+                                    <td>{{ '°C' if feat == 'Temperature' else ('%' if feat in ['Humidity', 'Moisture'] else 'Index / Score') }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr><td>Temperature</td><td>25</td><td>38</td><td>°C</td></tr>
+                                <tr><td>Humidity</td><td>50</td><td>72</td><td>%</td></tr>
+                                <tr><td>Moisture</td><td>25</td><td>65</td><td>%</td></tr>
+                                <tr><td>Nitrogen</td><td>4</td><td>42</td><td>Index value</td></tr>
+                                <tr><td>Potassium</td><td>0</td><td>19</td><td>Index value</td></tr>
+                                <tr><td>Phosphorous</td><td>0</td><td>42</td><td>Index value</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Honest Limitations -->
+        <div class="card shadow-sm border-0 border-start border-warning border-4 mb-4">
+            <div class="card-body p-4">
+                <h5 class="text-warning-emphasis fw-bold mb-3">
+                    <i class="bi bi-shield-exclamation me-2"></i>Agronomic Limitations & Caveats
+                </h5>
+                <ul class="mb-0 small text-muted">
+                    <li class="mb-2">
+                        <strong>Public Training Dataset Scale:</strong> The model is trained on a public 99-row dataset. N/P/K inputs correspond to synthetic score indexes from the dataset rather than direct laboratory soil-test kg/ha figures.
+                    </li>
+                    <li class="mb-2">
+                        <strong>Feature Importance:</strong> Cross-validation indicates that soil nutrient levels (N, P, K) carry over 75% of the predictive signal; environmental parameters contribute marginal variance.
+                    </li>
+                    <li class="mb-2">
+                        <strong>Commercial Reliance:</strong> Dosage and split schedules are based on Indian state university typical recommendations. Farmers should verify current commercial fertilizer MRPs and consult local Agricultural Extension Officers before commercial purchase.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

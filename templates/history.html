@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction History - Smart Fertilizer Advisor{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h2 class="mb-1"><i class="bi bi-clock-history me-2 text-success"></i>Recommendation History</h2>
+        <p class="text-muted mb-0">Review past recommendations, dosages, and chat consultations.</p>
+    </div>
+    {% if predictions and predictions.items %}
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#clearHistoryModal">
+            <i class="bi bi-trash3 me-1"></i>Clear History
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+{% if predictions and predictions.items %}
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Date</th>
+                        <th>Location</th>
+                        <th>Crop</th>
+                        <th>Soil</th>
+                        <th>Fertilizer</th>
+                        <th>Confidence</th>
+                        <th>Total Cost</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in predictions.items %}
+                    <tr>
+                        <td class="ps-4 text-nowrap">{{ p.created_at.strftime('%Y-%m-%d %H:%M') if p.created_at else 'Recent' }}</td>
+                        <td>{{ p.location or '—' }}</td>
+                        <td><span class="badge bg-light text-dark border">{{ p.crop_type }}</span></td>
+                        <td>{{ p.soil_type }}</td>
+                        <td><strong>{{ p.fertilizer }}</strong></td>
+                        <td>
+                            {% set pct = (p.confidence * 100) | round(0) | int %}
+                            <span class="badge {{ 'bg-success' if pct >= 70 else ('bg-warning text-dark' if pct >= 40 else 'bg-secondary') }}">
+                                {{ pct }}%
+                            </span>
+                        </td>
+                        <td>{{ '₹{:,.0f}'.format(p.total_cost) if p.total_cost else '—' }}</td>
+                        <td class="text-end pe-4 text-nowrap">
+                            <a href="{{ url_for('core.result', id=p.id) }}" class="btn btn-sm btn-outline-success me-1">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            <a href="{{ url_for('core.download_report', id=p.id) }}" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-file-earmark-pdf"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% if predictions.pages > 1 %}
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3">
+        <small class="text-muted">Page {{ predictions.page }} of {{ predictions.pages }}</small>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {{ 'disabled' if not predictions.has_prev }}">
+                    <a class="page-link" href="{{ url_for('core.history', page=predictions.prev_num) }}">Previous</a>
+                </li>
+                {% for page_num in predictions.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        <li class="page-item {{ 'active' if page_num == predictions.page }}">
+                            <a class="page-link" href="{{ url_for('core.history', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {{ 'disabled' if not predictions.has_next }}">
+                    <a class="page-link" href="{{ url_for('core.history', page=predictions.next_num) }}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Clear History Confirmation Modal -->
+<div class="modal fade" id="clearHistoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Clear All History?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>This will permanently delete all your saved recommendations and chat messages. This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="{{ url_for('core.clear_history') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger">Yes, Delete All</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="card shadow-sm border-0 text-center py-5">
+    <div class="card-body">
+        <div class="display-4 text-muted mb-3"><i class="bi bi-clock-history"></i></div>
+        <h4>No Predictions Yet</h4>
+        <p class="text-muted mb-4">Run your first crop nutrient analysis to view tailored fertilizer advice and dosage schedules.</p>
+        <a href="{{ url_for('core.predictor') }}" class="btn btn-success px-4">
+            <i class="bi bi-calculator me-2"></i>Go to Predictor
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account - Smart Fertilizer Advisor{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-success text-white text-center py-3">
+                <h4 class="mb-0"><i class="bi bi-person-plus me-2"></i>Create an Account</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('auth.register') }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Full Name</label>
+                        {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), id="name", placeholder="e.g. Ramesh Kumar") }}
+                        {% for err in form.name.errors %}
+                        <div class="invalid-feedback">{{ err }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), id="email", placeholder="farmer@example.com") }}
+                        {% for err in form.email.errors %}
+                        <div class="invalid-feedback">{{ err }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="preferred_language" class="form-label">Preferred Advisory Language</label>
+                        {{ form.preferred_language(class="form-select" + (" is-invalid" if form.preferred_language.errors else ""), id="preferred_language") }}
+                        {% for err in form.preferred_language.errors %}
+                        <div class="invalid-feedback">{{ err }}</div>
+                        {% endfor %}
+                        <div class="form-text">Chat recommendations can be answered in this language.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password (min 8 chars)</label>
+                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), id="password", placeholder="••••••••") }}
+                        {% for err in form.password.errors %}
+                        <div class="invalid-feedback">{{ err }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="confirm_password" class="form-label">Confirm Password</label>
+                        {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), id="confirm_password", placeholder="••••••••") }}
+                        {% for err in form.confirm_password.errors %}
+                        <div class="invalid-feedback">{{ err }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 py-2 mb-3">
+                        <i class="bi bi-person-check me-1"></i>Register
+                    </button>
+
+                    <div class="text-center text-muted small">
+                        Already have an account? <a href="{{ url_for('auth.login') }}" class="text-success fw-bold">Log In</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,260 @@
+{
+  "_meta": {
+    "unit": "kg/ha",
+    "basis": "Typical general recommendations for irrigated crops, India. Verify with state package of practices. Must match knowledge_base/crops/*.md",
+    "version": "2026-11-06"
+  },
+  "Paddy": {
+    "display": "Paddy (Rice)",
+    "rd": {
+      "N": 120,
+      "P2O5": 60,
+      "K2O": 40
+    },
+    "avoid_chloride": false,
+    "n_split": [
+      {
+        "stage": "Basal (at transplanting)",
+        "pct": 50
+      },
+      {
+        "stage": "Active tillering (20–25 days after transplanting)",
+        "pct": 25
+      },
+      {
+        "stage": "Panicle initiation (45–50 days)",
+        "pct": 25
+      }
+    ],
+    "extra_notes": [
+      "Apply zinc sulphate 25 kg/ha once in 2–3 seasons on zinc-deficient soils."
+    ]
+  },
+  "Wheat": {
+    "display": "Wheat",
+    "rd": {
+      "N": 120,
+      "P2O5": 60,
+      "K2O": 40
+    },
+    "avoid_chloride": false,
+    "n_split": [
+      {
+        "stage": "Basal (at sowing)",
+        "pct": 50
+      },
+      {
+        "stage": "First irrigation / crown root initiation (20–25 days)",
+        "pct": 50
+      }
+    ],
+    "extra_notes": [
+      "Apply zinc sulphate about 25 kg/ha on zinc-deficient soils."
+    ]
+  },
+  "Maize": {
+    "display": "Maize",
+    "rd": {
+      "N": 120,
+      "P2O5": 60,
+      "K2O": 40
+    },
+    "avoid_chloride": false,
+    "n_split": [
+      {
+        "stage": "Basal (at sowing)",
+        "pct": 33
+      },
+      {
+        "stage": "Knee-high (25–30 days)",
+        "pct": 33
+      },
+      {
+        "stage": "Tasselling (50–55 days)",
+        "pct": 34
+      }
+    ],
+    "extra_notes": [
+      "Apply zinc sulphate about 25 kg/ha on zinc-deficient soils."
+    ]
+  },
+  "Cotton": {
+    "display": "Cotton",
+    "rd": {
+      "N": 100,
+      "P2O5": 50,
+      "K2O": 50
+    },
+    "avoid_chloride": false,
+    "n_split": [
+      {
+        "stage": "Basal (at sowing)",
+        "pct": 34
+      },
+      {
+        "stage": "Squaring (40–45 days)",
+        "pct": 33
+      },
+      {
+        "stage": "Flowering (70–75 days)",
+        "pct": 33
+      }
+    ],
+    "extra_notes": [
+      "2% DAP foliar spray at flowering is commonly recommended."
+    ]
+  },
+  "Sugarcane": {
+    "display": "Sugarcane",
+    "rd": {
+      "N": 250,
+      "P2O5": 115,
+      "K2O": 115
+    },
+    "avoid_chloride": false,
+    "n_split": [
+      {
+        "stage": "Basal (at planting)",
+        "pct": 0
+      },
+      {
+        "stage": "30 days after planting",
+        "pct": 33
+      },
+      {
+        "stage": "60 days after planting",
+        "pct": 33
+      },
+      {
+        "stage": "90 days after planting",
+        "pct": 34
+      }
+    ],
+    "extra_notes": [
+      "Ratoon crop usually gets about 25% more nitrogen."
+    ]
+  },
+  "Barley": {
+    "display": "Barley",
+    "rd": {
+      "N": 60,
+      "P2O5": 30,
+      "K2O": 20
+    },
+    "avoid_chloride": false,
+    "n_split": [
+      {
+        "stage": "Basal (at sowing)",
+        "pct": 50
+      },
+      {
+        "stage": "First irrigation (25–30 days)",
+        "pct": 50
+      }
+    ],
+    "extra_notes": []
+  },
+  "Millets": {
+    "display": "Millets",
+    "rd": {
+      "N": 60,
+      "P2O5": 30,
+      "K2O": 30
+    },
+    "avoid_chloride": false,
+    "n_split": [
+      {
+        "stage": "Basal (at sowing)",
+        "pct": 50
+      },
+      {
+        "stage": "25–30 days after sowing",
+        "pct": 50
+      }
+    ],
+    "extra_notes": [
+      "Seed treatment with Azospirillum and PSB is recommended."
+    ]
+  },
+  "Pulses": {
+    "display": "Pulses",
+    "rd": {
+      "N": 20,
+      "P2O5": 50,
+      "K2O": 20
+    },
+    "avoid_chloride": false,
+    "n_split": [
+      {
+        "stage": "Basal (at sowing)",
+        "pct": 100
+      }
+    ],
+    "extra_notes": [
+      "Rhizobium + PSB seed treatment; sulphur 20 kg/ha.",
+      "2% DAP foliar spray at flowering is commonly recommended."
+    ]
+  },
+  "Ground Nuts": {
+    "display": "Ground Nuts",
+    "rd": {
+      "N": 20,
+      "P2O5": 40,
+      "K2O": 40
+    },
+    "avoid_chloride": false,
+    "n_split": [
+      {
+        "stage": "Basal (at sowing)",
+        "pct": 100
+      }
+    ],
+    "extra_notes": [
+      "Gypsum 400–500 kg/ha at flowering/pegging (40–45 days)."
+    ]
+  },
+  "Oil seeds": {
+    "display": "Oil seeds (mustard basis)",
+    "rd": {
+      "N": 80,
+      "P2O5": 40,
+      "K2O": 40
+    },
+    "avoid_chloride": false,
+    "n_split": [
+      {
+        "stage": "Basal (at sowing)",
+        "pct": 50
+      },
+      {
+        "stage": "First irrigation (25–30 days)",
+        "pct": 50
+      }
+    ],
+    "extra_notes": [
+      "Apply sulphur 20–40 kg/ha (SSP, 20-20-0-13 or gypsum)."
+    ]
+  },
+  "Tobacco": {
+    "display": "Tobacco",
+    "rd": {
+      "N": 60,
+      "P2O5": 60,
+      "K2O": 60
+    },
+    "avoid_chloride": true,
+    "n_split": [
+      {
+        "stage": "Basal (at planting)",
+        "pct": 50
+      },
+      {
+        "stage": "25–30 days after planting",
+        "pct": 50
+      }
+    ],
+    "extra_notes": [
+      "Chloride-sensitive: potash from SOP, not MOP."
+    ]
+  }
+}

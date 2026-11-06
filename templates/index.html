@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Smart Fertilizer Advisor - AI Crop Nutrition{% endblock %}
+
+{% block content %}
+<div class="hero-section fade-in-up py-4">
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <h1 class="display-4 text-gradient fw-bold">Smart Fertilizer Advisor</h1>
+            <p class="lead text-secondary">
+                Data-driven fertilizer recommendations tailored to your soil test, crop, and local weather. Powered by machine learning and grounded in trusted agronomic practices.
+            </p>
+            
+            <div class="mt-4 d-flex flex-wrap gap-2">
+                <a href="{{ url_for('core.predictor') }}" class="btn btn-success btn-lg">
+                    <i class="bi bi-calculator me-2"></i>Get a Recommendation
+                </a>
+                <a href="{{ url_for('core.dashboard') }}" class="btn btn-outline-success btn-lg">
+                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                </a>
+                <a href="{{ url_for('core.about') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-info-circle me-2"></i>About & Model Card
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-6 mt-4 mt-lg-0">
+            <div class="card shadow-custom-lg border-0">
+                <div class="card-body p-4">
+                    <h3 class="card-title text-success mb-4">
+                        <i class="bi bi-check2-circle me-2"></i>Comprehensive Agronomy Features
+                    </h3>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-3 d-flex align-items-start">
+                            <i class="bi bi-check-circle-fill text-success me-2 fs-5"></i>
+                            <div><strong>ML Nutrient Matching:</strong> Evaluates NPK, soil type, and moisture against calibrated crop requirements.</div>
+                        </li>
+                        <li class="mb-3 d-flex align-items-start">
+                            <i class="bi bi-check-circle-fill text-success me-2 fs-5"></i>
+                            <div><strong>Exact Dosage & Cost:</strong> Computes bags, split schedule, and estimated market expenditure for your farm size.</div>
+                        </li>
+                        <li class="mb-3 d-flex align-items-start">
+                            <i class="bi bi-check-circle-fill text-success me-2 fs-5"></i>
+                            <div><strong>Multilingual Advisory Chat:</strong> Ask follow-up questions in English, Telugu, Tamil, or Hindi with cited sources.</div>
+                        </li>
+                        <li class="mb-3 d-flex align-items-start">
+                            <i class="bi bi-check-circle-fill text-success me-2 fs-5"></i>
+                            <div><strong>Out-of-Range Alerts:</strong> Honest indicators when environmental or nutrient figures stray from training data.</div>
+                        </li>
+                        <li class="d-flex align-items-start">
+                            <i class="bi bi-check-circle-fill text-success me-2 fs-5"></i>
+                            <div><strong>PDF Export:</strong> Download printable application schedules to take to your local fertilizer dealer.</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-3 mb-4">
+        <div class="feature-card h-100 p-4 bg-white rounded shadow-sm">
+            <div class="feature-icon text-success mb-3 fs-2">
+                <i class="bi bi-input-cursor"></i>
+            </div>
+            <h5 class="fw-bold">1. Soil & Farm Input</h5>
+            <p class="text-muted small mb-0">Enter your soil texture, crop choice, area, and optional soil health card NPK test ratings.</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="feature-card h-100 p-4 bg-white rounded shadow-sm">
+            <div class="feature-icon text-success mb-3 fs-2">
+                <i class="bi bi-cpu"></i>
+            </div>
+            <h5 class="fw-bold">2. ML Analysis</h5>
+            <p class="text-muted small mb-0">Our Random Forest classifier predicts the primary product with confidence and top alternatives.</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="feature-card h-100 p-4 bg-white rounded shadow-sm">
+            <div class="feature-icon text-success mb-3 fs-2">
+                <i class="bi bi-calendar2-check"></i>
+            </div>
+            <h5 class="fw-bold">3. Dosage & Schedule</h5>
+            <p class="text-muted small mb-0">Balanced nutrient dosage with basal and top-dressing timelines to prevent fertilizer wastage.</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="feature-card h-100 p-4 bg-white rounded shadow-sm">
+            <div class="feature-icon text-success mb-3 fs-2">
+                <i class="bi bi-chat-quote"></i>
+            </div>
+            <h5 class="fw-bold">4. Ask the Advisor</h5>
+            <p class="text-muted small mb-0">Ground-truth RAG chat answers questions using curated ICAR & university extension documents.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Section -->
+<div class="row mt-3 mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-success text-white py-3">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>Model & System Capabilities
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row text-center">
+                    <div class="col-6 col-md-3 mb-3 mb-md-0">
+                        <div class="stats-card">
+                            <div class="stats-number text-success fw-bold display-6">{{ accuracy_pct }}%</div>
+                            <div class="stats-label text-muted">4-Fold CV Accuracy</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3 mb-md-0">
+                        <div class="stats-card">
+                            <div class="stats-number text-success fw-bold display-6">{{ crops_count }}</div>
+                            <div class="stats-label text-muted">Supported Crops</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stats-card">
+                            <div class="stats-number text-success fw-bold display-6">{{ soils_count }}</div>
+                            <div class="stats-label text-muted">Soil Classifications</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stats-card">
+                            <div class="stats-number text-success fw-bold display-6">4</div>
+                            <div class="stats-label text-muted">Indic Advisory Languages</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

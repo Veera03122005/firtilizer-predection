@@ -1,0 +1,81 @@
+<div class="card shadow-sm border-0 h-100">
+    <div class="card-header bg-success text-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fs-6">
+            <i class="bi bi-chat-quote-fill me-2 text-warning"></i>Ask the Agronomy Advisor
+        </h5>
+        <div class="d-flex align-items-center">
+            <label for="chatLanguage" class="visually-hidden">Language</label>
+            <select class="form-select form-select-sm border-0 py-0 ps-2 pe-4" id="chatLanguage" style="width: auto; font-size: 0.85rem;">
+                <option value="en" selected>English</option>
+                <option value="te">తెలుగు (Telugu)</option>
+                <option value="ta">தமிழ் (Tamil)</option>
+                <option value="hi">हिन्दी (Hindi)</option>
+            </select>
+        </div>
+    </div>
+    <div class="card-body d-flex flex-column p-3" style="min-height: 480px; max-height: 560px;">
+        <!-- Chat messages container -->
+        <div class="chat-messages flex-grow-1 overflow-auto pe-2 mb-3" id="chatMessages" style="max-height: 400px;">
+            <!-- Welcome message -->
+            <div class="d-flex mb-3">
+                <div class="bg-light border rounded-3 p-3 text-dark small" style="max-width: 85%;">
+                    <strong><i class="bi bi-robot text-success me-1"></i>Agronomy Assistant:</strong><br>
+                    I have analyzed your recommendation of <strong>{{ prediction.fertilizer }}</strong> for <strong>{{ prediction.crop_type }}</strong>. You can ask me how to apply it, timings, weather precautions, or local safety guidelines in English, Telugu, Tamil, or Hindi.
+                </div>
+            </div>
+
+            <!-- Existing messages if any -->
+            {% if chat_messages %}
+                {% for msg in chat_messages %}
+                <div class="d-flex mb-3 {{ 'justify-content-end' if msg.role == 'user' else '' }}">
+                    <div class="{{ 'bg-success text-white' if msg.role == 'user' else 'bg-light border text-dark' }} rounded-3 p-3 small" style="max-width: 85%;">
+                        {% if msg.role == 'assistant' %}
+                            <strong><i class="bi bi-robot text-success me-1"></i>Advisor:</strong><br>
+                        {% endif %}
+                        <div class="message-content">{{ msg.content }}</div>
+                        {% if msg.sources and msg.sources|length > 0 %}
+                        <div class="mt-2 pt-2 border-top border-secondary-subtle small opacity-75">
+                            <span class="fw-semibold">Sources:</span>
+                            {% for s in msg.sources %}
+                            <span class="badge bg-secondary-subtle text-secondary me-1">{{ s.source }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- Suggested Question Chips -->
+        <div class="suggested-chips mb-2 d-flex flex-wrap gap-1" id="suggestedChips">
+            <button type="button" class="btn btn-outline-secondary btn-sm chip-btn" data-question="Why is {{ prediction.fertilizer }} recommended for this crop?">
+                Why this fertilizer?
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm chip-btn" data-question="How and when should I apply the basal and top-dressing doses?">
+                Application timing?
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm chip-btn" data-question="What should I do if it rains heavily right after application?">
+                Rain precautions?
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm chip-btn" data-question="Are there organic manure or biofertilizer complements?">
+                Organic options?
+            </button>
+        </div>
+
+        <!-- Chat Input Form -->
+        <form id="chatForm" class="mt-auto">
+            <div class="input-group">
+                <textarea class="form-control" id="chatInput" rows="1" placeholder="Type your agronomy question..." maxlength="500" required></textarea>
+                <button class="btn btn-success" type="submit" id="chatSendBtn">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-1">
+                <small class="text-muted" style="font-size: 0.75rem;">Educational guidance. Always verify with local extension officers.</small>
+                <small class="text-muted" id="charCounter" style="font-size: 0.75rem;">0/500</small>
+            </div>
+        </form>
+    </div>
+</div>
+

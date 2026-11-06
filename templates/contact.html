@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - Smart Fertilizer Advisor{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-success text-white py-3">
+                <h4 class="mb-0"><i class="bi bi-envelope-paper me-2"></i>Contact Agronomy Support</h4>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted mb-4">
+                    Have questions about local crop dosage, soil test interpretation, or system recommendations? Send us a message and our extension team will review it.
+                </p>
+
+                <form method="POST" action="{{ url_for('core.contact') }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Full Name</label>
+                        {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), id="name", placeholder="e.g. Ramesh Kumar") }}
+                        {% for err in form.name.errors %}
+                        <div class="invalid-feedback">{{ err }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), id="email", placeholder="name@example.com") }}
+                        {% for err in form.email.errors %}
+                        <div class="invalid-feedback">{{ err }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="message" class="form-label">Message / Query</label>
+                        {{ form.message(class="form-control" + (" is-invalid" if form.message.errors else ""), id="message", rows="5", placeholder="Describe your soil, crop, or inquiry...") }}
+                        {% for err in form.message.errors %}
+                        <div class="invalid-feedback">{{ err }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('core.index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Back
+                        </a>
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="bi bi-send me-1"></i>Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

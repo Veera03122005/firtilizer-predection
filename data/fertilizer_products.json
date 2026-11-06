@@ -1,0 +1,89 @@
+{
+  "_meta": {
+    "currency": "INR",
+    "price_as_of": "2026-03",
+    "note": "Verify current MRP with local dealer before relying on cost. price_verified=false entries are placeholders.",
+    "sources": "Urea statutory MRP Rs 266.50/45 kg; DAP MRP Rs 1,350/50 kg; MOP and 10-26-26 2025-26 average retail prices reported March 2026"
+  },
+  "Urea": {
+    "N": 46,
+    "P2O5": 0,
+    "K2O": 0,
+    "S": 0,
+    "bag_kg": 45,
+    "price_per_bag": 266.5,
+    "price_verified": true
+  },
+  "DAP": {
+    "N": 18,
+    "P2O5": 46,
+    "K2O": 0,
+    "S": 0,
+    "bag_kg": 50,
+    "price_per_bag": 1350.0,
+    "price_verified": true
+  },
+  "MOP": {
+    "N": 0,
+    "P2O5": 0,
+    "K2O": 60,
+    "S": 0,
+    "bag_kg": 50,
+    "price_per_bag": 1710.54,
+    "price_verified": true
+  },
+  "SOP": {
+    "N": 0,
+    "P2O5": 0,
+    "K2O": 50,
+    "S": 18,
+    "bag_kg": 50,
+    "price_per_bag": 3500.0,
+    "price_verified": false
+  },
+  "10-26-26": {
+    "N": 10,
+    "P2O5": 26,
+    "K2O": 26,
+    "S": 0,
+    "bag_kg": 50,
+    "price_per_bag": 1814.82,
+    "price_verified": true
+  },
+  "14-35-14": {
+    "N": 14,
+    "P2O5": 35,
+    "K2O": 14,
+    "S": 0,
+    "bag_kg": 50,
+    "price_per_bag": 1700.0,
+    "price_verified": false
+  },
+  "17-17-17": {
+    "N": 17,
+    "P2O5": 17,
+    "K2O": 17,
+    "S": 0,
+    "bag_kg": 50,
+    "price_per_bag": 1500.0,
+    "price_verified": false
+  },
+  "20-20": {
+    "N": 20,
+    "P2O5": 20,
+    "K2O": 0,
+    "S": 13,
+    "bag_kg": 50,
+    "price_per_bag": 1300.0,
+    "price_verified": false
+  },
+  "28-28": {
+    "N": 28,
+    "P2O5": 28,
+    "K2O": 0,
+    "S": 0,
+    "bag_kg": 50,
+    "price_per_bag": 1700.0,
+    "price_verified": false
+  }
+}

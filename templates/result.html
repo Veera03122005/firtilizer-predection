@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+
+{% block title %}Recommendation - Smart Fertilizer Advisor{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('core.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('core.predictor') }}">Predictor</a></li>
+                <li class="breadcrumb-item active">Result #{{ prediction.id }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Recommendation & Agronomic Details (Col 7) -->
+    <div class="col-lg-7">
+        <!-- 1. Recommendation Card -->
+        <div class="card shadow-sm border-0 mb-4 border-start border-success border-5">
+            <div class="card-header bg-success text-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-lightbulb-fill me-2 text-warning"></i>Nutrient Recommendation</h5>
+                <span class="badge bg-light text-dark small">Model: {{ prediction.model_version }}</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                    <div>
+                        <div class="text-muted small text-uppercase">Primary Recommended Fertilizer</div>
+                        <div class="display-5 fw-bold text-success">{{ prediction.fertilizer }}</div>
+                    </div>
+                    <div>
+                        {% set pct = (prediction.confidence * 100) | round(1) %}
+                        {% if pct >= 70 %}
+                            <span class="badge bg-success fs-6 py-2 px-3"><i class="bi bi-shield-check me-1"></i>{{ pct }}% Confidence</span>
+                        {% elif pct >= 40 %}
+                            <span class="badge bg-warning text-dark fs-6 py-2 px-3"><i class="bi bi-shield-exclamation me-1"></i>{{ pct }}% Moderate</span>
+                        {% else %}
+                            <span class="badge bg-secondary fs-6 py-2 px-3"><i class="bi bi-shield-slash me-1"></i>{{ pct }}% Low Confidence</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if prediction.top3 and prediction.top3|length > 1 %}
+                <div class="bg-light rounded p-3 mb-3 small">
+                    <span class="fw-semibold text-muted">Alternative candidates:</span>
+                    {% for alt in prediction.top3[1:] %}
+                        <span class="badge bg-white text-dark border ms-2">
+                            {{ alt.label }}: {{ (alt.p * 100) | round(1) }}%
+                        </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if prediction.ood_fields and prediction.ood_fields|length > 0 %}
+                <div class="alert alert-warning border-0 small mb-0 d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle-fill fs-5 me-2 text-warning-emphasis"></i>
+                    <div>
+                        <strong>Outside Typical Training Range:</strong> The following parameters were outside the model's calibrated training set:
+                        <strong>{{ prediction.ood_fields | join(', ') }}</strong>. Recommendation provided with generalized inference.
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 2. Dosage & Cost Card -->
+        {% if prediction.dosage and prediction.dosage.lines %}
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-cash-stack me-2 text-success"></i>Dosage & Estimated Input Cost</h6>
+                <small class="text-muted">Area: {{ prediction.area_value }} {{ prediction.area_unit }} ({{ prediction.dosage.area_ha }} ha)</small>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th>Product</th>
+                                <th>Rate (kg/ha)</th>
+                                <th>Farm Total (kg)</th>
+                                <th>Bags Needed</th>
+                                <th class="text-end">Approx. Cost (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for line in prediction.dosage.lines %}
+                            <tr>
+                                <td><strong>{{ line.product }}</strong></td>
+                                <td>{{ line.kg_per_ha }}</td>
+                                <td>{{ line.kg_total }} kg</td>
+                                <td>
+                                    {{ line.bags }} <span class="badge bg-secondary-subtle text-secondary small">Buy {{ line.bags_rounded }}</span>
+                                </td>
+                                <td class="text-end fw-semibold">₹{{ '{:,.0f}'.format(line.cost) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th colspan="4" class="text-end fw-bold">Total Estimated Fertilizer Cost:</th>
+                                <th class="text-end fw-bold text-success fs-5">
+                                    ₹{{ '{:,.0f}'.format(prediction.dosage.total_cost) }}
+                                </th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer bg-white small text-muted py-2">
+                Approximate. Product prices based on configured MRP (dated {{ prediction.dosage.price_as_of or '2026-03' }}). Verify with your local dealer.
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 3. When to Apply Schedule -->
+        {% if prediction.dosage and prediction.dosage.schedule %}
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light py-3">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-calendar2-range me-2 text-primary"></i>Application Timeline (Split Schedule)</h6>
+            </div>
+            <div class="card-body p-3">
+                <div class="timeline">
+                    {% for stage_item in prediction.dosage.schedule %}
+                    <div class="border-start border-success border-3 ps-3 mb-3">
+                        <div class="fw-bold text-success">{{ stage_item.stage }}</div>
+                        <ul class="mb-0 small text-secondary">
+                            {% for product_str in stage_item['items'] %}
+                            <li>{{ product_str }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if prediction.dosage.notes %}
+                <div class="mt-2 pt-2 border-top small text-muted">
+                    {% for note in prediction.dosage.notes %}
+                    <div><i class="bi bi-info-circle me-1"></i>{{ note }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 4. Input Summary Table -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light py-2">
+                <small class="fw-bold text-muted text-uppercase">Recorded Input Conditions</small>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm table-bordered mb-0 small">
+                    <tbody>
+                        <tr>
+                            <th class="bg-light w-25">Location</th>
+                            <td>{{ prediction.location or 'Manual Entry' }}</td>
+                            <th class="bg-light w-25">Crop Selected</th>
+                            <td>{{ prediction.crop_type }}</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Soil Type</th>
+                            <td>{{ prediction.soil_type }}</td>
+                            <th class="bg-light">Land Area</th>
+                            <td>{{ prediction.area_value }} {{ prediction.area_unit }}</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Temperature / Humidity</th>
+                            <td>{{ prediction.temperature }} °C / {{ prediction.humidity }}%</td>
+                            <th class="bg-light">Soil Moisture</th>
+                            <td>{{ prediction.moisture }}%</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Nutrients (N-P-K)</th>
+                            <td colspan="3">
+                                <span class="badge bg-primary me-1">N: {{ prediction.nitrogen }} ({{ prediction.rating_n }})</span>
+                                <span class="badge bg-warning text-dark me-1">P: {{ prediction.phosphorous }} ({{ prediction.rating_p }})</span>
+                                <span class="badge bg-success">K: {{ prediction.potassium }} ({{ prediction.rating_k }})</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Action Links -->
+        <div class="d-flex justify-content-between mb-5">
+            <a href="{{ url_for('core.predictor') }}" class="btn btn-outline-success">
+                <i class="bi bi-arrow-left me-1"></i>New Prediction
+            </a>
+            <div>
+                <a href="{{ url_for('core.download_report', id=prediction.id) }}" class="btn btn-outline-primary me-2">
+                    <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF Report
+                </a>
+                <a href="{{ url_for('core.history') }}" class="btn btn-secondary">
+                    <i class="bi bi-clock-history me-1"></i>My History
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: RAG Advisory Chat Panel (Col 5) -->
+    <div class="col-lg-5">
+        {% include "partials/_chat.html" %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const predictionId = {{ prediction.id }};
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+    const chatMessages = document.getElementById('chatMessages');
+    const charCounter = document.getElementById('charCounter');
+    const chatLang = document.getElementById('chatLanguage');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+    // Char counter
+    if (chatInput && charCounter) {
+        chatInput.addEventListener('input', function() {
+            charCounter.textContent = `${this.value.length}/500`;
+        });
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                chatForm.dispatchEvent(new Event('submit'));
+            }
+        });
+    }
+
+    // Suggested question chips
+    document.querySelectorAll('.chip-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (chatInput) {
+                chatInput.value = this.getAttribute('data-question');
+                chatInput.dispatchEvent(new Event('input'));
+                chatForm.dispatchEvent(new Event('submit'));
+            }
+        });
+    });
+
+    // Chat submit
+    if (chatForm) {
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            // Append user message bubble
+            appendMessage('user', text);
+            chatInput.value = '';
+            charCounter.textContent = '0/500';
+
+            // Show typing indicator
+            const typingId = 'typing-' + Date.now();
+            appendTypingIndicator(typingId);
+
+            // Hide chips after first message
+            const chips = document.getElementById('suggestedChips');
+            if (chips) chips.style.display = 'none';
+
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken || ''
+                },
+                body: JSON.stringify({
+                    prediction_id: predictionId,
+                    question: text,
+                    language: chatLang ? chatLang.value : 'en'
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                removeElement(typingId);
+                if (data.answer) {
+                    appendMessage('assistant', data.answer, data.sources, data.fallback);
+                } else {
+                    appendMessage('assistant', 'Sorry, I encountered an issue processing your query. Please consult your local extension office.', [], true);
+                }
+            })
+            .catch(() => {
+                removeElement(typingId);
+                appendMessage('assistant', 'Network error reaching the advisory service. Please check connection and try again.', [], true);
+            });
+        });
+    }
+
+    function appendMessage(role, content, sources, isFallback) {
+        const wrap = document.createElement('div');
+        wrap.className = 'd-flex mb-3 ' + (role === 'user' ? 'justify-content-end' : '');
+
+        let bubbleClass = role === 'user' ? 'bg-success text-white' : (isFallback ? 'bg-warning-subtle border border-warning text-dark' : 'bg-light border text-dark');
+        let html = `<div class="${bubbleClass} rounded-3 p-3 small" style="max-width: 85%;">`;
+        if (role === 'assistant') {
+            html += `<strong><i class="bi bi-robot text-success me-1"></i>Advisor:</strong><br>`;
+        }
+        html += `<div class="message-content">${escapeHtml(content)}</div>`;
+
+        if (sources && sources.length > 0) {
+            html += `<div class="mt-2 pt-2 border-top border-secondary-subtle small opacity-75">`;
+            html += `<span class="fw-semibold">Sources:</span> `;
+            sources.forEach(s => {
+                html += `<span class="badge bg-secondary-subtle text-secondary me-1">${escapeHtml(s.source || s)}</span>`;
+            });
+            html += `</div>`;
+        }
+        html += `</div>`;
+        wrap.innerHTML = html;
+        chatMessages.appendChild(wrap);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function appendTypingIndicator(id) {
+        const wrap = document.createElement('div');
+        wrap.id = id;
+        wrap.className = 'd-flex mb-3';
+        wrap.innerHTML = `
+            <div class="bg-light border rounded-3 p-2 px-3 small text-muted">
+                <span class="spinner-grow spinner-grow-sm text-success me-1"></span> Advisor is researching agronomy sources...
+            </div>
+        `;
+        chatMessages.appendChild(wrap);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function removeElement(id) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+});
+</script>
+{% endblock %}
