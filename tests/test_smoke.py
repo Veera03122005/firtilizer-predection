@@ -112,3 +112,4 @@ def test_contact_submission(client, app):
     )
     assert r.status_code == 302
     assert r.headers["Location"] == "/contact"
+

@@ -11,10 +11,10 @@ class LLMError(Exception):
 
 
 class LLMClient:
-    def __init__(self, api_key: Optional[str] = None, model: str = "gemini-flash-latest", embed_model: str = "gemini-embedding-001"):
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None, embed_model: Optional[str] = None):
         self.api_key = api_key or os.getenv("GEMINI_API_KEY", "")
-        self.model = model
-        self.embed_model = embed_model
+        self.model = model or os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+        self.embed_model = embed_model or os.getenv("GEMINI_EMBED_MODEL", "gemini-embedding-001")
         self.client = None
         if self.api_key:
             try:
@@ -59,16 +59,25 @@ class LLMClient:
 
         try:
             results = []
-            # Batch in up to 100 texts
-            for i in range(0, len(texts), 100):
-                batch = texts[i:i + 100]
-                resp = self.client.models.embed_content(
-                    model=self.embed_model,
-                    contents=batch,
-                    config={"output_dimensionality": dims},
-                )
-                for embedding in resp.embeddings:
-                    results.append(embedding.values)
+            # Batch in up to 50 texts to stay well within limits
+            for i in range(0, len(texts), 50):
+                batch = texts[i:i + 50]
+                for attempt in range(5):
+                    try:
+                        resp = self.client.models.embed_content(
+                            model=self.embed_model,
+                            contents=batch,
+                            config={"output_dimensionality": dims},
+                        )
+                        for embedding in resp.embeddings:
+                            results.append(embedding.values)
+                        break
+                    except Exception as err:
+                        if "429" in str(err) or "RESOURCE_EXHAUSTED" in str(err):
+                            logger.info(f"Rate limited on embed batch {i}, waiting 15s before retry...")
+                            time.sleep(15.0)
+                            continue
+                        raise err
             return results
         except Exception as e:
             logger.error(f"Gemini embed failed: {e}")

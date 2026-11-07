@@ -1,4 +1,5 @@
 import re
+import pytest
 import requests
 
 def test_live_app():
@@ -6,7 +7,10 @@ def test_live_app():
     base_url = "http://127.0.0.1:5000"
 
     # 1. Login page to get CSRF token
-    r_login_page = session.get(f"{base_url}/login")
+    try:
+        r_login_page = session.get(f"{base_url}/login")
+    except Exception:
+        pytest.skip("Live server is not running on http://127.0.0.1:5000")
     assert r_login_page.status_code == 200, f"Login page failed: {r_login_page.status_code}"
     csrf_token = re.search(r'name="csrf_token"[^>]*?value="([^"]+)"', r_login_page.text).group(1)
 

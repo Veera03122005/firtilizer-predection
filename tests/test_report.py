@@ -33,3 +33,4 @@ def test_pdf_report_download(auth_client, app):
     assert res.status_code == 200
     assert res.headers["Content-Type"] == "application/pdf"
     assert res.data.startswith(b"%PDF")
+

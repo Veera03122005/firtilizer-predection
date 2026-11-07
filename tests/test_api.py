@@ -55,3 +55,4 @@ def test_api_weather(client):
     res = client.get("/api/weather?location=Guntur")
     # In sandbox or offline it could be 200 or 502 depending on network, handled gracefully
     assert res.status_code in (200, 502)
+
