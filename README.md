@@ -116,10 +116,6 @@ Tests run offline (Gemini and Open-Meteo are mocked). See [docs/14-TESTING-QA.md
 | 14 | [Testing & QA](docs/14-TESTING-QA.md) |
 | 15 | [Debugging](docs/15-DEBUGGING.md) |
 
-## Changes from v1
-
-- Fixed: missing model/data in repo, `/history` and `/contact` 500s, "Rice" encoding error, debug mode on, random secret key, cookie-based history, raw exception messages, unrealistic sample values, hard-coded accuracy claims.
-- Added: accounts, SQLite history, confidence + out-of-range warnings, dosage & cost, schedule, RAG chat, multilingual answers, weather auto-fill, PDF reports, tests.
 
 ## Disclaimer
 
