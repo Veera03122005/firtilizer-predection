@@ -21,20 +21,31 @@ wheels/
 *.egg
 MANIFEST
 
-# Virtual environments
+# Virtual environments & secrets
 .env
+.env.*
+!.env.example
 .venv
 env/
 venv/
 ENV/
 
-# Application instance (SQLite)
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Application instance & SQLite databases
 instance/
+*.db
+*.sqlite
+*.sqlite3
 
 # ML & RAG built artifacts (keep training CSV in ml/data/)
 ml/artifacts/
 rag/index/
-fertilizer_model.pkl
+*.pkl
+*.joblib
 
 # IDE & OS
 .vscode/
