@@ -19,7 +19,7 @@ def is_safe_url(target: str) -> bool:
 
 
 @auth_bp.route("/register", methods=["GET", "POST"])
-@limiter.limit("3 per minute", methods=["POST"])
+@limiter.limit("10 per minute", methods=["POST"])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for("core.dashboard"))
@@ -30,6 +30,7 @@ def register():
         existing = User.query.filter_by(email=email).first()
         if existing:
             form.email.errors.append("An account with this email already exists.")
+            flash("An account with this email already exists. Please log in.", "warning")
             return render_template("auth/register.html", form=form)
 
         user = User(
@@ -45,6 +46,12 @@ def register():
         login_user(user)
         flash("Registration successful! Welcome to Smart Fertilizer Advisor.", "success")
         return redirect(url_for("core.dashboard"))
+
+    elif request.method == "POST" and form.errors:
+        for field, errors in form.errors.items():
+            for error in errors:
+                field_label = form[field].label.text if field in form else field
+                flash(f"{field_label}: {error}", "danger")
 
     return render_template("auth/register.html", form=form)
 

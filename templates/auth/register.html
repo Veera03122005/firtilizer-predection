@@ -10,6 +10,19 @@
                 <h4 class="mb-0"><i class="bi bi-person-plus me-2"></i>Create an Account</h4>
             </div>
             <div class="card-body p-4">
+                {% if form.errors %}
+                <div class="alert alert-danger mb-3 py-2 small" role="alert">
+                    <div class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i>Please fix the following:</div>
+                    <ul class="mb-0 ps-3">
+                    {% for field_name, err_list in form.errors.items() %}
+                        {% for err in err_list %}
+                        <li>{{ form[field_name].label.text if field_name in form else field_name }}: {{ err }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
                 <form method="POST" action="{{ url_for('auth.register') }}">
                     {{ form.hidden_tag() }}
 

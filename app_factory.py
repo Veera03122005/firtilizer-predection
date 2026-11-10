@@ -65,7 +65,9 @@ def create_app(config_class=None) -> Flask:
     def rate_limit_exceeded(e):
         if request.path.startswith("/api/"):
             return jsonify({"error": {"code": "RATE_LIMITED", "message": "Too many requests. Please try again later."}}), 429
-        return render_template("errors/500.html"), 429
+        from flask import flash, redirect
+        flash("Rate limit reached. Please wait a minute before trying again.", "warning")
+        return redirect(request.referrer or request.url), 302
 
     @app.errorhandler(500)
     def internal_error(e):
