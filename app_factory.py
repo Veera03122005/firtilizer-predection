@@ -24,6 +24,16 @@ def create_app(config_class=None) -> Flask:
     if not app.config.get("SECRET_KEY") and not app.config.get("FLASK_DEBUG") and not app.config.get("TESTING"):
         raise RuntimeError("SECRET_KEY environment variable is required in production/non-debug mode.")
 
+    # Ensure SQLite database directory exists
+    db_uri = app.config.get("SQLALCHEMY_DATABASE_URI", "")
+    if db_uri and db_uri.startswith("sqlite:///"):
+        sqlite_file = db_uri.replace("sqlite:///", "", 1)
+        if sqlite_file and sqlite_file != ":memory:":
+            db_file_path = Path(sqlite_file)
+            db_file_path.parent.mkdir(parents=True, exist_ok=True)
+    instance_path = Path(app.instance_path)
+    instance_path.mkdir(parents=True, exist_ok=True)
+
     # Initialize extensions
     db.init_app(app)
     login_manager.init_app(app)
@@ -47,6 +57,24 @@ def create_app(config_class=None) -> Flask:
     app.register_blueprint(core_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(api_bp)
+
+    # Auto-create tables and seed demo account on startup if needed
+    with app.app_context():
+        try:
+            db.create_all()
+            demo_user = User.query.filter_by(email="demo@example.com").first()
+            if not demo_user:
+                demo_user = User(
+                    name="Demo Farmer",
+                    email="demo@example.com",
+                    password_hash=generate_password_hash("Demo@1234"),
+                    preferred_language="en",
+                    is_active=True,
+                )
+                db.session.add(demo_user)
+                db.session.commit()
+        except Exception as e:
+            app.logger.warning(f"Could not auto-create database tables: {e}")
 
     # Register error handlers
     @app.errorhandler(400)

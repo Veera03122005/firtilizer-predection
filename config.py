@@ -5,11 +5,16 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(BASE_DIR / ".env")
 
+# Normalize DATABASE_URL for Render PostgreSQL (postgres:// -> postgresql://)
+db_url = os.getenv("DATABASE_URL")
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
 
 class BaseConfig:
-    SECRET_KEY = os.getenv("SECRET_KEY")
+    SECRET_KEY = os.getenv("SECRET_KEY", "smart-fertilizer-advisor-secret-key-prod-3122005")
     FLASK_DEBUG = os.getenv("FLASK_DEBUG", "0") in ("1", "true", "True")
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'instance' / 'app.db'}")
+    SQLALCHEMY_DATABASE_URI = db_url or f"sqlite:///{BASE_DIR / 'instance' / 'app.db'}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Gemini

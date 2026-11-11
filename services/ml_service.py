@@ -28,9 +28,14 @@ class MLService:
         meta_path = self.artifacts_dir / "model_meta.json"
 
         if not pipe_path.exists() or not meta_path.exists():
-            logger.warning("ML artifacts not found. Run python ml/train.py to generate them.")
-            self.model_loaded = False
-            return False
+            logger.info("ML artifacts not found. Training model automatically...")
+            try:
+                from ml.train import train_model
+                train_model(artifacts_dir=self.artifacts_dir)
+            except Exception as e:
+                logger.error(f"Automatic ML model training failed: {e}")
+                self.model_loaded = False
+                return False
 
         try:
             with open(meta_path, "r", encoding="utf-8") as f:

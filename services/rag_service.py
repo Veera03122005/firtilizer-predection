@@ -51,9 +51,14 @@ class RAGService:
         faiss_file = self.index_dir / "faiss.index"
 
         if not chunks_file.exists():
-            logger.warning("RAG chunks not found. Run python rag/build_index.py to create index.")
-            self.loaded = False
-            return False
+            logger.info("RAG chunks not found. Building index automatically...")
+            try:
+                from rag.build_index import build_index
+                build_index()
+            except Exception as e:
+                logger.error(f"Automatic RAG index build failed: {e}")
+                self.loaded = False
+                return False
 
         try:
             with open(chunks_file, "r", encoding="utf-8") as f:
